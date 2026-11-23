@@ -1,0 +1,148 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure Sonoff TRVZB Thermostats",
+        "description": "Select the climate entities of your Sonoff TRVZB valves. The integration automatically discovers linked weekly_schedule text entities and TRVZB settings on each device.",
+        "data": {
+          "climate_entities": "TRVZB Climate Entities",
+          "restore_delay": "Delay between Zigbee writes (seconds)",
+          "auto_safety_backup": "Create pre-restore safety snapshot (_last_before_restore)"
+        },
+        "data_description": {
+          "climate_entities": "Select one or more climate.* entities exposed by Zigbee2MQTT.",
+          "restore_delay": "Recommended 0.25s to avoid overloading the Zigbee coordinator.",
+          "auto_safety_backup": "Automatically saves live states into _last_before_restore before applying a profile."
+        }
+      }
+    },
+    "error": {
+      "no_climate_entities": "Please select at least one climate entity.",
+      "no_schedule_entities": "No weekly_schedule or TRVZB setting entities were found for the selected devices."
+    },
+    "abort": {
+      "already_configured": "TRV Schedule Backup is already configured. Use Configure (Options) to edit thermostats."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update TRVZB Thermostats & Pacing",
+        "description": "Add or remove TRVZB climate entities, adjust Zigbee delay, or toggle automatic pre-restore safety snapshots.",
+        "data": {
+          "climate_entities": "TRVZB Climate Entities",
+          "restore_delay": "Delay between Zigbee writes (seconds)",
+          "auto_safety_backup": "Create pre-restore safety snapshot (_last_before_restore)"
+        }
+      }
+    },
+    "error": {
+      "no_climate_entities": "Please select at least one climate entity.",
+      "no_schedule_entities": "No weekly_schedule or TRVZB setting entities were found for the selected devices."
+    }
+  },
+  "entity": {
+    "select": {
+      "active_profile": {
+        "name": "Active backup profile"
+      }
+    },
+    "sensor": {
+      "saved_profiles": {
+        "name": "Saved backup profiles"
+      }
+    }
+  },
+  "services": {
+    "save_profile": {
+      "name": "Save backup profile",
+      "description": "Read current weekly schedules, TRVZB settings, and climate system modes from all or selected thermostats and save under a profile name.",
+      "fields": {
+        "profile_name": {
+          "name": "Profile name",
+          "description": "Unique identifier for the backup profile (e.g., heat_pump, solid_boiler)."
+        },
+        "entities": {
+          "name": "Target thermostats / entities",
+          "description": "Optional list of climate or device entities to back up. Leave empty for all configured thermostats."
+        },
+        "parameters": {
+          "name": "Parameters to back up",
+          "description": "Choose all (default), groups, or specific TRVZB parameters."
+        }
+      }
+    },
+    "restore_profile": {
+      "name": "Restore backup profile",
+      "description": "Restore all or selected thermostats and parameters sequentially with optional delta filtering, safety backup, and readback verification.",
+      "fields": {
+        "profile_name": {
+          "name": "Profile name",
+          "description": "Name of the previously saved profile to restore."
+        },
+        "entities": {
+          "name": "Thermostats / entities to restore",
+          "description": "Optional list of entities stored in the backup. Leave empty to restore all devices in this profile."
+        },
+        "parameters": {
+          "name": "Parameters to restore",
+          "description": "Select all (default), groups, or individual TRVZB parameters. system_mode is applied last."
+        },
+        "delta_only": {
+          "name": "Delta restore only",
+          "description": "Skip writing entities whose live state already matches the saved backup value."
+        },
+        "safety_backup": {
+          "name": "Pre-restore safety snapshot",
+          "description": "Override integration option to save _last_before_restore before applying changes."
+        },
+        "verify": {
+          "name": "Verify restored parameters",
+          "description": "Wait briefly after writing and log any mismatches in last_restore_result without retrying."
+        }
+      }
+    },
+    "diff_profile": {
+      "name": "Compare profile with current state",
+      "description": "Return a list of schedules and settings that differ between a saved backup profile and live thermostat states.",
+      "fields": {
+        "profile_name": {
+          "name": "Profile name",
+          "description": "Saved profile to compare against live states."
+        },
+        "entities": {
+          "name": "Target thermostats / entities",
+          "description": "Optional filter of devices or entities to compare."
+        },
+        "parameters": {
+          "name": "Parameters to compare",
+          "description": "Optional filter of parameter groups or keys."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Delete backup profile",
+      "description": "Permanently delete a saved backup profile from storage.",
+      "fields": {
+        "profile_name": {
+          "name": "Profile name",
+          "description": "Name of the profile to delete."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "empty_profile_name": {
+      "message": "Profile name cannot be empty."
+    },
+    "profile_not_found": {
+      "message": "Backup profile {profile_name} does not exist."
+    },
+    "no_matching_entities": {
+      "message": "No matching TRVZB entities were found for the provided filter."
+    },
+    "no_matching_parameters": {
+      "message": "No valid TRVZB parameters were selected."
+    }
+  }
+}

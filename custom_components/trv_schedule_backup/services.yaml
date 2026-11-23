@@ -1,0 +1,183 @@
+save_profile:
+  fields:
+    profile_name:
+      required: true
+      example: "heat_pump"
+      selector:
+        text:
+    entities:
+      required: false
+      selector:
+        entity:
+          multiple: true
+          domain:
+            - climate
+            - text
+            - number
+            - switch
+            - lock
+            - select
+    parameters:
+      required: false
+      default:
+        - all
+      selector:
+        select:
+          multiple: true
+          options:
+            - label: All (schedules + TRVZB settings + system mode)
+              value: all
+            - label: Weekly schedules (Mon-Sun)
+              value: weekly_schedule
+            - label: All TRVZB device settings & system mode
+              value: settings
+            - label: Smart temperature control (PID)
+              value: smart_temperature_control
+            - label: Local temperature calibration
+              value: local_temperature_calibration
+            - label: Temperature accuracy (hysteresis)
+              value: temperature_accuracy
+            - label: Frost protection temperature
+              value: frost_protection_temperature
+            - label: Open window detection
+              value: open_window
+            - label: Child lock
+              value: child_lock
+            - label: Valve opening degree (%)
+              value: valve_opening_degree
+            - label: Valve closing degree (%)
+              value: valve_closing_degree
+            - label: Temperature sensor source
+              value: temperature_sensor_select
+            - label: System mode (auto / heat / off)
+              value: system_mode
+
+restore_profile:
+  fields:
+    profile_name:
+      required: true
+      example: "heat_pump"
+      selector:
+        text:
+    entities:
+      required: false
+      selector:
+        entity:
+          multiple: true
+          domain:
+            - climate
+            - text
+            - number
+            - switch
+            - lock
+            - select
+    parameters:
+      required: false
+      default:
+        - all
+      selector:
+        select:
+          multiple: true
+          options:
+            - label: All (schedules + TRVZB settings + system mode)
+              value: all
+            - label: Weekly schedules (Mon-Sun)
+              value: weekly_schedule
+            - label: All TRVZB device settings & system mode
+              value: settings
+            - label: Smart temperature control (PID)
+              value: smart_temperature_control
+            - label: Local temperature calibration
+              value: local_temperature_calibration
+            - label: Temperature accuracy (hysteresis)
+              value: temperature_accuracy
+            - label: Frost protection temperature
+              value: frost_protection_temperature
+            - label: Open window detection
+              value: open_window
+            - label: Child lock
+              value: child_lock
+            - label: Valve opening degree (%)
+              value: valve_opening_degree
+            - label: Valve closing degree (%)
+              value: valve_closing_degree
+            - label: Temperature sensor source
+              value: temperature_sensor_select
+            - label: System mode (auto / heat / off)
+              value: system_mode
+    delta_only:
+      required: false
+      default: false
+      selector:
+        boolean:
+    safety_backup:
+      required: false
+      selector:
+        boolean:
+    verify:
+      required: false
+      default: false
+      selector:
+        boolean:
+
+diff_profile:
+  fields:
+    profile_name:
+      required: true
+      example: "solid_boiler"
+      selector:
+        text:
+    entities:
+      required: false
+      selector:
+        entity:
+          multiple: true
+          domain:
+            - climate
+            - text
+            - number
+            - switch
+            - lock
+            - select
+    parameters:
+      required: false
+      default:
+        - all
+      selector:
+        select:
+          multiple: true
+          options:
+            - label: All (schedules + TRVZB settings + system mode)
+              value: all
+            - label: Weekly schedules (Mon-Sun)
+              value: weekly_schedule
+            - label: All TRVZB device settings & system mode
+              value: settings
+            - label: Smart temperature control (PID)
+              value: smart_temperature_control
+            - label: Local temperature calibration
+              value: local_temperature_calibration
+            - label: Temperature accuracy (hysteresis)
+              value: temperature_accuracy
+            - label: Frost protection temperature
+              value: frost_protection_temperature
+            - label: Open window detection
+              value: open_window
+            - label: Child lock
+              value: child_lock
+            - label: Valve opening degree (%)
+              value: valve_opening_degree
+            - label: Valve closing degree (%)
+              value: valve_closing_degree
+            - label: Temperature sensor source
+              value: temperature_sensor_select
+            - label: System mode (auto / heat / off)
+              value: system_mode
+
+delete_profile:
+  fields:
+    profile_name:
+      required: true
+      example: "solid_boiler"
+      selector:
+        text:
