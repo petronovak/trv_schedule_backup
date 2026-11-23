@@ -132,7 +132,8 @@ const I18N = {
     saveBtn: "Записати",
     applyBtn: "ОК",
     saveCardTitle: "1. Зберегти резервну копію (save_profile)",
-    saveCardSub: "Бекапить 7 розкладів, system_mode, smart_temperature_control, temperature_accuracy та інші параметри TRVZB",
+    saveCardSub: "Оберіть термоголовки й параметри для збереження (за замовчуванням — усе)",
+    paramsToSave: "Параметри для бекапу",
     resetFilter: "Скинути фільтр (усі)",
     profilePlaceholder: "Назва профілю (напр. eco_away)",
     saveProfileBtn: "Зберегти профіль",
@@ -194,7 +195,8 @@ const I18N = {
     saveBtn: "Write",
     applyBtn: "OK",
     saveCardTitle: "1. Save Backup Profile (save_profile)",
-    saveCardSub: "Snapshots 7 weekly schedules, system_mode, smart_temperature_control, temperature_accuracy, and all TRVZB parameters",
+    saveCardSub: "Choose which thermostats and TRVZB parameters to include in the snapshot",
+    paramsToSave: "Parameters to back up",
     resetFilter: "Reset filter (all)",
     profilePlaceholder: "Profile name (e.g. eco_away)",
     saveProfileBtn: "Save Profile",
@@ -273,6 +275,7 @@ class TRVZBBackupPanel extends HTMLElement {
     this._deviceTab = "schedules";
     this._profileNameInput = "eco_away";
     this._saveFilter = [];
+    this._saveParams = ALL_PARAMETERS.map((p) => p.key);
     this._restoreProfile = "";
     this._restoreDevices = [];
     this._restoreParams = ALL_PARAMETERS.map((p) => p.key);
@@ -499,6 +502,18 @@ class TRVZBBackupPanel extends HTMLElement {
       this._render();
       return;
     }
+    if (target.hasAttribute("data-save-param")) {
+      const pkey = target.getAttribute("data-save-param");
+      if (target.checked) {
+        if (!this._saveParams.includes(pkey)) {
+          this._saveParams = [...this._saveParams, pkey];
+        }
+      } else {
+        this._saveParams = this._saveParams.filter((x) => x !== pkey);
+      }
+      this._render();
+      return;
+    }
     if (target.hasAttribute("data-restore-param")) {
       const pkey = target.getAttribute("data-restore-param");
       if (target.checked) {
@@ -594,6 +609,22 @@ class TRVZBBackupPanel extends HTMLElement {
     }
     if (action === "clear-save-filter") {
       this._saveFilter = [];
+      this._render();
+      return;
+    }
+    if (action === "save-params-preset") {
+      const mode = btn.getAttribute("data-mode");
+      if (mode === "all") {
+        this._saveParams = ALL_PARAMETERS.map((p) => p.key);
+      } else if (mode === "schedules") {
+        this._saveParams = ["weekly_schedule"];
+      } else if (mode === "settings") {
+        this._saveParams = ALL_PARAMETERS.filter(
+          (p) => p.group === "settings"
+        ).map((p) => p.key);
+      } else {
+        this._saveParams = [];
+      }
       this._render();
       return;
     }
@@ -782,13 +813,16 @@ class TRVZBBackupPanel extends HTMLElement {
 
   async _handleSaveProfile() {
     const name = (this._profileNameInput || "").trim();
-    if (!name || !this._hass || this._busy) {
+    if (!name || !this._hass || this._busy || this._saveParams.length === 0) {
       return;
     }
     this._busy = true;
     this._render();
     try {
-      const payload = { profile_name: name };
+      const payload = {
+        profile_name: name,
+        parameters: this._saveParams,
+      };
       if (this._saveFilter.length > 0) {
         payload.entities = this._saveFilter;
       }
@@ -1688,6 +1722,26 @@ class TRVZBBackupPanel extends HTMLElement {
           mismatchesHtml;
       }
 
+      const saveParamCheckboxesHtml = ALL_PARAMETERS.map((param) => {
+        const checked = this._saveParams.includes(param.key);
+        return (
+          '<label class="check-card' +
+          (checked ? " checked" : "") +
+          '">' +
+          '<div class="check-left">' +
+          '<input type="checkbox" data-save-param="' +
+          esc(param.key) +
+          '"' +
+          (checked ? " checked" : "") +
+          ">" +
+          '<span class="trunc">' +
+          esc(param[lang]) +
+          "</span>" +
+          "</div>" +
+          "</label>"
+        );
+      }).join("");
+
       bodyHtml =
         statusHtml +
         '<div class="grid">' +
@@ -1718,6 +1772,34 @@ class TRVZBBackupPanel extends HTMLElement {
             "</button>"
           : "") +
         "</div>" +
+        '<div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid var(--divider-color, rgba(255,255,255,0.08))">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-size:12px;font-weight:600">' +
+        esc(t.paramsToSave) +
+        " (" +
+        this._saveParams.length +
+        "/" +
+        ALL_PARAMETERS.length +
+        ")</span>" +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+        '<button class="link-btn" data-action="save-params-preset" data-mode="all">' +
+        esc(t.allParams) +
+        "</button>" +
+        '<button class="link-btn" data-action="save-params-preset" data-mode="schedules">' +
+        esc(t.onlySchedules) +
+        "</button>" +
+        '<button class="link-btn" data-action="save-params-preset" data-mode="settings">' +
+        esc(t.onlySettings) +
+        "</button>" +
+        '<button class="link-btn" data-action="save-params-preset" data-mode="none">' +
+        esc(t.clearAll) +
+        "</button>" +
+        "</div>" +
+        "</div>" +
+        '<div class="check-grid">' +
+        saveParamCheckboxesHtml +
+        "</div>" +
+        "</div>" +
         '<div class="input-group">' +
         '<input type="text" id="profile-name-input" class="mono" value="' +
         esc(this._profileNameInput) +
@@ -1725,7 +1807,7 @@ class TRVZBBackupPanel extends HTMLElement {
         esc(t.profilePlaceholder) +
         '">' +
         '<button class="btn btn-primary" data-action="save-profile"' +
-        (this._busy ? " disabled" : "") +
+        (this._busy || this._saveParams.length === 0 ? " disabled" : "") +
         ">" +
         esc(t.saveProfileBtn) +
         "</button>" +

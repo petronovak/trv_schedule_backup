@@ -7,12 +7,14 @@
         "data": {
           "climate_entities": "Термоголовки (climate)",
           "restore_delay": "Затримка між Zigbee-записами (сек)",
-          "auto_safety_backup": "Автоматичний страховий знімок (_last_before_restore)"
+          "auto_safety_backup": "Автоматичний страховий знімок (_last_before_restore)",
+          "show_sidebar_panel": "Показувати TRVZB Backup у бічному меню"
         },
         "data_description": {
           "climate_entities": "Оберіть одну або кілька сутностей climate.*, створених через Zigbee2MQTT.",
           "restore_delay": "Рекомендовано 0.25с, щоб не перевантажувати чергу Zigbee-координатора.",
-          "auto_safety_backup": "Перед відновленням профілю автоматично зберігає поточні стани у _last_before_restore."
+          "auto_safety_backup": "Перед відновленням профілю автоматично зберігає поточні стани у _last_before_restore.",
+          "show_sidebar_panel": "Вимкніть, якщо хочете приховати вкладку TRVZB Backup із лівого бічного меню Home Assistant."
         }
       }
     },
@@ -28,11 +30,12 @@
     "step": {
       "init": {
         "title": "Оновлення термоголовок та затримки",
-        "description": "Додайте чи приберіть термоголовки TRVZB, змініть Zigbee-паузу або керуйте автобекапом перед відновленням.",
+        "description": "Додайте чи приберіть термоголовки TRVZB, змініть Zigbee-паузу або керуйте бічною панеллю та автобекапом.",
         "data": {
           "climate_entities": "Термоголовки (climate)",
           "restore_delay": "Затримка між Zigbee-записами (сек)",
-          "auto_safety_backup": "Автоматичний страховий знімок (_last_before_restore)"
+          "auto_safety_backup": "Автоматичний страховий знімок (_last_before_restore)",
+          "show_sidebar_panel": "Показувати TRVZB Backup у бічному меню"
         }
       }
     },

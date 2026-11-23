@@ -12,7 +12,7 @@ PANEL_MODULE_URL = "/trv_schedule_backup_panel/trvzb-panel.js"
 PANEL_WEBCOMPONENT_NAME = "trvzb-backup-panel"
 PANEL_SIDEBAR_TITLE = "TRVZB Backup"
 PANEL_SIDEBAR_ICON = "mdi:thermostat-cog"
-PANEL_VERSION = "1.4.0"
+PANEL_VERSION = "1.5.0"
 
 # Store(hass, STORAGE_VERSION, STORAGE_KEY) saves directly to .storage/trv_schedule_backup.json
 STORAGE_KEY = "trv_schedule_backup.json"
@@ -21,9 +21,11 @@ STORAGE_VERSION = 1
 CONF_CLIMATE_ENTITIES = "climate_entities"
 CONF_RESTORE_DELAY = "restore_delay"
 CONF_AUTO_SAFETY_BACKUP = "auto_safety_backup"
+CONF_SHOW_SIDEBAR_PANEL = "show_sidebar_panel"
 
 DEFAULT_RESTORE_DELAY = 0.25
 DEFAULT_AUTO_SAFETY_BACKUP = True
+DEFAULT_SHOW_SIDEBAR_PANEL = True
 VERIFY_SETTLE_DELAY = 1.5
 
 SAFETY_BACKUP_PROFILE = "_last_before_restore"

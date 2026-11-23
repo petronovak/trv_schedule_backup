@@ -21,8 +21,10 @@ from .const import (
     CONF_AUTO_SAFETY_BACKUP,
     CONF_CLIMATE_ENTITIES,
     CONF_RESTORE_DELAY,
+    CONF_SHOW_SIDEBAR_PANEL,
     DEFAULT_AUTO_SAFETY_BACKUP,
     DEFAULT_RESTORE_DELAY,
+    DEFAULT_SHOW_SIDEBAR_PANEL,
     DOMAIN,
 )
 from .coordinator import async_discover_schedule_entities
@@ -32,8 +34,9 @@ def _build_user_schema(
     default_entities: list[str] | None = None,
     default_delay: float = DEFAULT_RESTORE_DELAY,
     default_safety: bool = DEFAULT_AUTO_SAFETY_BACKUP,
+    default_show_panel: bool = DEFAULT_SHOW_SIDEBAR_PANEL,
 ) -> vol.Schema:
-    """Build schema with multi-select climate EntitySelector, delay, and safety backup."""
+    """Build schema with multi-select climate EntitySelector, delay, safety backup, and sidebar toggle."""
     return vol.Schema(
         {
             vol.Required(
@@ -60,6 +63,10 @@ def _build_user_schema(
             vol.Optional(
                 CONF_AUTO_SAFETY_BACKUP,
                 default=default_safety,
+            ): selector.BooleanSelector(),
+            vol.Optional(
+                CONF_SHOW_SIDEBAR_PANEL,
+                default=default_show_panel,
             ): selector.BooleanSelector(),
         }
     )
@@ -145,6 +152,14 @@ class TRVScheduleBackupOptionsFlow(OptionsFlow):
                 ),
             )
         )
+        current_show_panel = bool(
+            self.config_entry.options.get(
+                CONF_SHOW_SIDEBAR_PANEL,
+                self.config_entry.data.get(
+                    CONF_SHOW_SIDEBAR_PANEL, DEFAULT_SHOW_SIDEBAR_PANEL
+                ),
+            )
+        )
 
         if user_input is not None:
             climate_entities: list[str] = user_input.get(CONF_CLIMATE_ENTITIES, [])
@@ -167,7 +182,10 @@ class TRVScheduleBackupOptionsFlow(OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=_build_user_schema(
-                current_entities, current_delay, current_safety
+                current_entities,
+                current_delay,
+                current_safety,
+                current_show_panel,
             ),
             errors=errors,
         )

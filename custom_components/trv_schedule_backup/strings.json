@@ -7,12 +7,14 @@
         "data": {
           "climate_entities": "TRVZB Climate Entities",
           "restore_delay": "Delay between Zigbee writes (seconds)",
-          "auto_safety_backup": "Create pre-restore safety snapshot (_last_before_restore)"
+          "auto_safety_backup": "Create pre-restore safety snapshot (_last_before_restore)",
+          "show_sidebar_panel": "Show TRVZB Backup in Home Assistant sidebar"
         },
         "data_description": {
           "climate_entities": "Select one or more climate.* entities exposed by Zigbee2MQTT.",
           "restore_delay": "Recommended 0.25s to avoid overloading the Zigbee coordinator.",
-          "auto_safety_backup": "Automatically saves live states into _last_before_restore before applying a profile."
+          "auto_safety_backup": "Automatically saves live states into _last_before_restore before applying a profile.",
+          "show_sidebar_panel": "Disable to hide the TRVZB Backup menu item from the Home Assistant sidebar."
         }
       }
     },
@@ -28,11 +30,12 @@
     "step": {
       "init": {
         "title": "Update TRVZB Thermostats & Pacing",
-        "description": "Add or remove TRVZB climate entities, adjust Zigbee delay, or toggle automatic pre-restore safety snapshots.",
+        "description": "Add or remove TRVZB climate entities, adjust Zigbee delay, or toggle sidebar panel and safety snapshots.",
         "data": {
           "climate_entities": "TRVZB Climate Entities",
           "restore_delay": "Delay between Zigbee writes (seconds)",
-          "auto_safety_backup": "Create pre-restore safety snapshot (_last_before_restore)"
+          "auto_safety_backup": "Create pre-restore safety snapshot (_last_before_restore)",
+          "show_sidebar_panel": "Show TRVZB Backup in Home Assistant sidebar"
         }
       }
     },

@@ -28,7 +28,9 @@ from .const import (
     ATTR_PROFILE_NAME,
     ATTR_SAFETY_BACKUP,
     ATTR_VERIFY,
+    CONF_SHOW_SIDEBAR_PANEL,
     DEFAULT_DELTA_ONLY,
+    DEFAULT_SHOW_SIDEBAR_PANEL,
     DEFAULT_VERIFY,
     DOMAIN,
     PANEL_MODULE_URL,
@@ -149,9 +151,21 @@ async def _ws_get_state(
     )
 
 
-async def _async_register_panel(hass: HomeAssistant) -> None:
-    """Serve static frontend JS and register the custom sidebar panel safely."""
+async def _async_register_panel(
+    hass: HomeAssistant,
+    show_panel: bool,
+) -> None:
+    """Serve static frontend JS and register or hide the custom sidebar panel."""
     domain_data = hass.data.setdefault(DOMAIN, {})
+    if not domain_data.get("ws_registered"):
+        websocket_api.async_register_command(hass, _ws_get_state)
+        domain_data["ws_registered"] = True
+
+    if not show_panel:
+        if DOMAIN in hass.data.get(DATA_PANELS, {}):
+            async_remove_panel(hass, DOMAIN)
+        return
+
     if not domain_data.get("static_registered"):
         frontend_dir = str(Path(__file__).parent / "frontend")
         await hass.http.async_register_static_paths(
@@ -164,10 +178,6 @@ async def _async_register_panel(hass: HomeAssistant) -> None:
             ]
         )
         domain_data["static_registered"] = True
-
-    if not domain_data.get("ws_registered"):
-        websocket_api.async_register_command(hass, _ws_get_state)
-        domain_data["ws_registered"] = True
 
     if DOMAIN not in hass.data.get(DATA_PANELS, {}):
         await panel_custom.async_register_panel(
@@ -193,8 +203,15 @@ async def async_setup_entry(
 
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
+    show_panel = bool(
+        entry.options.get(
+            CONF_SHOW_SIDEBAR_PANEL,
+            entry.data.get(CONF_SHOW_SIDEBAR_PANEL, DEFAULT_SHOW_SIDEBAR_PANEL),
+        )
+    )
+
     _async_register_services(hass)
-    await _async_register_panel(hass)
+    await _async_register_panel(hass, show_panel)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 

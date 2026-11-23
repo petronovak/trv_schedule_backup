@@ -451,7 +451,9 @@ class TRVScheduleCoordinator(DataUpdateCoordinator[StorePayload]):
 
         existing = profiles.get(profile_name)
         devices_map: dict[str, DeviceSnapshot] = (
-            dict(existing["devices"]) if existing and not allow_empty else {}
+            dict(existing["devices"])
+            if existing and entities and not allow_empty
+            else {}
         )
 
         captured_count = 0
