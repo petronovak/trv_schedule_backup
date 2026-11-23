@@ -10,6 +10,9 @@
     "switch",
     "text"
   ],
+  "categories": [
+    "climate"
+  ],
   "codeowners": [
     "@petronovak"
   ],
