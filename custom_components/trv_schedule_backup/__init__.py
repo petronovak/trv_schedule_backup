@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeAlias
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import voluptuous as vol
 
+from homeassistant.components import panel_custom, websocket_api
+from homeassistant.components.frontend import DATA_PANELS, async_remove_panel
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import (
     HomeAssistant,
@@ -27,6 +31,12 @@ from .const import (
     DEFAULT_DELTA_ONLY,
     DEFAULT_VERIFY,
     DOMAIN,
+    PANEL_MODULE_URL,
+    PANEL_SIDEBAR_ICON,
+    PANEL_SIDEBAR_TITLE,
+    PANEL_URL_PATH,
+    PANEL_VERSION,
+    PANEL_WEBCOMPONENT_NAME,
     PLATFORMS,
     SERVICE_DELETE_PROFILE,
     SERVICE_DIFF_PROFILE,
@@ -93,6 +103,85 @@ def _get_active_coordinator(hass: HomeAssistant) -> TRVScheduleCoordinator:
     return entries[0].runtime_data
 
 
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/get_state",
+    }
+)
+@websocket_api.async_response
+async def _ws_get_state(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Return discovered TRVZB devices, config, and stored backup profiles."""
+    try:
+        coordinator = _get_active_coordinator(hass)
+    except HomeAssistantError as err:
+        connection.send_error(msg["id"], "not_loaded", str(err))
+        return
+
+    await coordinator.async_refresh_discovered_entities()
+    discovered = [
+        {
+            "climate_entity_id": trv.climate_entity_id,
+            "device_id": trv.device_id,
+            "device_name": trv.device_name,
+            "schedule_entities": trv.schedule_entities,
+            "setting_entities": {
+                key: {"entity_id": eid, "domain": dom}
+                for key, (eid, dom) in trv.setting_entities.items()
+            },
+        }
+        for trv in coordinator.discovered_trvs
+    ]
+    connection.send_result(
+        msg["id"],
+        {
+            "config": {
+                "climate_entities": coordinator.climate_entities,
+                "restore_delay": coordinator.restore_delay,
+                "auto_safety_backup": coordinator.auto_safety_backup,
+            },
+            "discovered_trvs": discovered,
+            "store": coordinator.store_data,
+        },
+    )
+
+
+async def _async_register_panel(hass: HomeAssistant) -> None:
+    """Serve static frontend JS and register the custom sidebar panel safely."""
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    if not domain_data.get("static_registered"):
+        frontend_dir = str(Path(__file__).parent / "frontend")
+        await hass.http.async_register_static_paths(
+            [
+                StaticPathConfig(
+                    url_path=PANEL_URL_PATH,
+                    path=frontend_dir,
+                    cache_headers=False,
+                )
+            ]
+        )
+        domain_data["static_registered"] = True
+
+    if not domain_data.get("ws_registered"):
+        websocket_api.async_register_command(hass, _ws_get_state)
+        domain_data["ws_registered"] = True
+
+    if DOMAIN not in hass.data.get(DATA_PANELS, {}):
+        await panel_custom.async_register_panel(
+            hass,
+            webcomponent_name=PANEL_WEBCOMPONENT_NAME,
+            frontend_url_path=DOMAIN,
+            sidebar_title=PANEL_SIDEBAR_TITLE,
+            sidebar_icon=PANEL_SIDEBAR_ICON,
+            module_url=f"{PANEL_MODULE_URL}?v={PANEL_VERSION}",
+            embed_iframe=False,
+            require_admin=False,
+        )
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: TRVScheduleConfigEntry,
@@ -105,6 +194,7 @@ async def async_setup_entry(
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     _async_register_services(hass)
+    await _async_register_panel(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -199,6 +289,8 @@ async def async_unload_entry(
             hass.services.async_remove(DOMAIN, SERVICE_RESTORE_PROFILE)
             hass.services.async_remove(DOMAIN, SERVICE_DIFF_PROFILE)
             hass.services.async_remove(DOMAIN, SERVICE_DELETE_PROFILE)
+            if DOMAIN in hass.data.get(DATA_PANELS, {}):
+                async_remove_panel(hass, DOMAIN)
     return unload_ok
 
 

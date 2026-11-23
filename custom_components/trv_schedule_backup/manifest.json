@@ -17,10 +17,15 @@
     "@petronovak"
   ],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": [
+    "frontend",
+    "http",
+    "panel_custom",
+    "websocket_api"
+  ],
   "documentation": "https://github.com/petronovak/trv_schedule_backup",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/petronovak/trv_schedule_backup/issues",
   "requirements": [],
-  "version": "1.3.1"
+  "version": "1.4.0"
 }

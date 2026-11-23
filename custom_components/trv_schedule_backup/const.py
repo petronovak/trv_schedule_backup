@@ -7,6 +7,13 @@ from homeassistant.const import Platform
 DOMAIN = "trv_schedule_backup"
 PLATFORMS: list[Platform] = [Platform.SELECT, Platform.SENSOR]
 
+PANEL_URL_PATH = "/trv_schedule_backup_panel"
+PANEL_MODULE_URL = "/trv_schedule_backup_panel/trvzb-panel.js"
+PANEL_WEBCOMPONENT_NAME = "trvzb-backup-panel"
+PANEL_SIDEBAR_TITLE = "TRVZB Backup"
+PANEL_SIDEBAR_ICON = "mdi:thermostat-cog"
+PANEL_VERSION = "1.4.0"
+
 # Store(hass, STORAGE_VERSION, STORAGE_KEY) saves directly to .storage/trv_schedule_backup.json
 STORAGE_KEY = "trv_schedule_backup.json"
 STORAGE_VERSION = 1
