@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
 
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
-    ConfigFlowResult,
     OptionsFlow,
 )
 from homeassistant.core import callback
 from homeassistant.helpers import selector
+
+if TYPE_CHECKING:
+    from homeassistant.config_entries import ConfigFlowResult
 
 from .const import (
     CONF_AUTO_SAFETY_BACKUP,
@@ -108,15 +110,11 @@ class TRVScheduleBackupConfigFlow(ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
         """Return the options flow handler."""
-        return TRVScheduleBackupOptionsFlow(config_entry)
+        return TRVScheduleBackupOptionsFlow()
 
 
 class TRVScheduleBackupOptionsFlow(OptionsFlow):
     """Handle options flow to add/remove thermostats, delay, or safety backup."""
-
-    def __init__(self, config_entry: ConfigEntry) -> None:
-        """Initialize options flow."""
-        self._config_entry = config_entry
 
     async def async_step_init(
         self,
@@ -126,23 +124,23 @@ class TRVScheduleBackupOptionsFlow(OptionsFlow):
         errors: dict[str, str] = {}
 
         current_entities = list(
-            self._config_entry.options.get(
+            self.config_entry.options.get(
                 CONF_CLIMATE_ENTITIES,
-                self._config_entry.data.get(CONF_CLIMATE_ENTITIES, []),
+                self.config_entry.data.get(CONF_CLIMATE_ENTITIES, []),
             )
         )
         current_delay = float(
-            self._config_entry.options.get(
+            self.config_entry.options.get(
                 CONF_RESTORE_DELAY,
-                self._config_entry.data.get(
+                self.config_entry.data.get(
                     CONF_RESTORE_DELAY, DEFAULT_RESTORE_DELAY
                 ),
             )
         )
         current_safety = bool(
-            self._config_entry.options.get(
+            self.config_entry.options.get(
                 CONF_AUTO_SAFETY_BACKUP,
-                self._config_entry.data.get(
+                self.config_entry.data.get(
                     CONF_AUTO_SAFETY_BACKUP, DEFAULT_AUTO_SAFETY_BACKUP
                 ),
             )

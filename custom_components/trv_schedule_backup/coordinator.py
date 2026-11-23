@@ -8,7 +8,7 @@ import logging
 from typing import Any, TypedDict
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_LOCKED, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import device_registry as dr, entity_registry as er
@@ -39,6 +39,8 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+LOCK_STATE_LOCKED = "locked"
 
 
 class SettingSnapshot(TypedDict):
@@ -256,7 +258,7 @@ def _parse_state_value(domain: str, raw_state: str) -> Any:
     if domain == "switch":
         return raw_state.lower() in (STATE_ON, "true", "1")
     if domain == "lock":
-        return raw_state.lower() in (STATE_LOCKED, "lock", STATE_ON, "true")
+        return raw_state.lower() in (LOCK_STATE_LOCKED, "lock", STATE_ON, "true")
     return raw_state
 
 
@@ -281,9 +283,9 @@ def _values_match(domain: str, expected: Any, actual_raw: str) -> bool:
         exp_bool = (
             expected
             if isinstance(expected, bool)
-            else str(expected).lower() in (STATE_LOCKED, "lock", STATE_ON, "true")
+            else str(expected).lower() in (LOCK_STATE_LOCKED, "lock", STATE_ON, "true")
         )
-        act_bool = actual_raw.lower() in (STATE_LOCKED, "lock", STATE_ON, "true")
+        act_bool = actual_raw.lower() in (LOCK_STATE_LOCKED, "lock", STATE_ON, "true")
         return exp_bool == act_bool
     return str(expected).strip() == actual_raw.strip()
 
@@ -791,7 +793,7 @@ class TRVScheduleCoordinator(DataUpdateCoordinator[StorePayload]):
             locked = (
                 value
                 if isinstance(value, bool)
-                else str(value).lower() in (STATE_LOCKED, "lock", STATE_ON, "true")
+                else str(value).lower() in (LOCK_STATE_LOCKED, "lock", STATE_ON, "true")
             )
             await self.hass.services.async_call(
                 "lock",

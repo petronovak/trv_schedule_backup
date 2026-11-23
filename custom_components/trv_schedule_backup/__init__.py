@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TypeAlias
+from typing import TYPE_CHECKING, TypeAlias
 
 import voluptuous as vol
 
@@ -35,7 +35,10 @@ from .const import (
 )
 from .coordinator import TRVScheduleCoordinator
 
-TRVScheduleConfigEntry: TypeAlias = ConfigEntry[TRVScheduleCoordinator]
+if TYPE_CHECKING:
+    TRVScheduleConfigEntry: TypeAlias = ConfigEntry[TRVScheduleCoordinator]
+else:
+    TRVScheduleConfigEntry = ConfigEntry
 
 SERVICE_SAVE_SCHEMA = vol.Schema(
     {
